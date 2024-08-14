@@ -33,23 +33,38 @@ prog = ctx.program(
     ''',
 )
 
-x = np.linspace(-1.0, 1.0, 50)
-y = np.random.rand(50) - 0.5
-
-print(x,y)
-
 r = np.ones(50)
 g = np.zeros(50)
 b = np.zeros(50)
 
-vertices = np.dstack([x, y, r, g, b])
+def line(x1, y1, x2, y2):
+    """ creates a line based on the function received and the input values for x and y. """
+    x = np.linspace(-x1,x1, 50)
+    y = np.sin((x))
+    z = np.cos((y)) 
+    # x = np.linspace(x1, x2, 50)  # Adjust number of points as needed
+    # y_positive = np.sqrt(5**2 - x**2)
+    # y_negative = -np.sqrt(5**2 - x**2)
+    # y = np.concatenate([y_positive, y_negative])
+    # x = np.concatenate([x, x])
 
-vbo = ctx.buffer(vertices.astype('f4').tobytes())
-vao = ctx.simple_vertex_array(prog, vbo, 'in_vert', 'in_color')
+    vertices = np.dstack([z, y, r, g, b])
+    vbo = ctx.buffer(vertices.astype('f4').tobytes())
+    vao = ctx.simple_vertex_array(prog, vbo, 'in_vert', 'in_color')
+    fbo = ctx.simple_framebuffer((512, 512))
+    fbo.use()
+    fbo.clear(0.0, 0.0, 0.0, 1.0)
+    vao.render(moderngl.LINE_STRIP)
+    Image.frombytes('RGB', fbo.size, fbo.read(), 'raw', 'RGB', 0, -1).show()
 
-fbo = ctx.simple_framebuffer((512, 512))
-fbo.use()
-fbo.clear(0.0, 0.0, 0.0, 1.0)
-vao.render(moderngl.LINE_STRIP)
 
-Image.frombytes('RGB', fbo.size, fbo.read(), 'raw', 'RGB', 0, -1).show()
+def linesArtDrawing(n):
+    x1 = 10
+    y1 = 25
+    x2 = 50
+    y2 = 25
+    for i in range(n):
+        line(x1, y1, x2, y2)
+
+
+linesArtDrawing(1)
